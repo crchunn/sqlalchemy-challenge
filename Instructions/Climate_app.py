@@ -35,6 +35,18 @@ def precipitation():
 
     precip = list(np.ravel(results))
     return jsonify(precip)
+@app.route("/api/v1.0/tobs")
+def tobs():
+    tobresults = session.query(Measure.tobs).all()
+
+    session.close()
+
+    temps = list(np.ravel(tobresults))
+    return jsonify(temps)
+
+    
+
+
 
 
 if __name__ == '__main__':
