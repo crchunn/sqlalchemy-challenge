@@ -31,7 +31,7 @@ def home():
         f"/api/v1.0/tobs<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/start<br/>"
-        f"/api/v1.0/starttoend"
+        f"/api/v1.0/start/end"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -68,14 +68,14 @@ def tobs():
 
 
 
-@app.route("/api/v1.0/start")
-def start():
+@app.route("/api/v1.0/<start>")
+def start(start):
     #start_date = (2015, 9, 23)
    # end_date = (2015, 9, 28)
     sel = [func.min(Measure.tobs), func.avg(Measure.tobs), func.max(Measure.tobs)]
     beginning_results = session.query(*sel).\
-        filter(Measure.date >= dt.date(2015, 9, 23)).\
-        filter(Measure.date <= dt.date(2015, 9, 30)).all()
+        filter(Measure.date >= start).all()
+
     session.close()
 
     weather = list(np.ravel(beginning_results))
@@ -85,29 +85,17 @@ def start():
  
    
 
-@app.route("/api/v1.0/starttoend")
-def starttoend():
-    offtime = []
-    sel = [func.min(Measure.tobs), func.avg(Measure.tobs), func.max(Measure.tobs)]
-    offtime = (dt.date(2015, 10, 23))
-    # offtime = [{func.min(Measure.tobs), func.avg(Measure.tobs), func.max(Measure.tobs), dt.date(2015, 10, 23)}, 
-        #   {func.min(Measure.tobs), func.avg(Measure.tobs), func.max(Measure.tobs), dt.date(2015, 10, 24)}, 
-            # {func.min(Measure.tobs), func.avg(Measure.tobs), func.max(Measure.tobs), dt.date(2015, 10, 25)}, 
-            # {func.min(Measure.tobs), func.avg(Measure.tobs), func.max(Measure.tobs), dt.date(2015, 10, 26)}]  
+@app.route("/api/v1.0/<start>/<end>")
+def start_end(start, end):
+    
+    end_results =  session.query(func.min(Measure.tobs), func.avg(Measure.tobs), func.max(Measure.tobs)).\
+        filter(Measure.date >= start).filter(Measure.date <= end).all()
                   
-    end_results = session.query(*sel, Measure.date).all()
+    # end_results = session.query(*sel, Measure.date).all()
         # filter(Measure.date, sel).all()
 
     session.close()
 
-    for date, tobs in end_results:
-        Measure_dict = {}
-        Measure_dict["date"] = date
-        Measure_dict["tobs"] = tobs
-        
-        offtime.append(Measure_dict)
-
-    
 
     allweather = list(np.ravel(end_results))
 
